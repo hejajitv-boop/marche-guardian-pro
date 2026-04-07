@@ -10,10 +10,12 @@ import NotificationsPage from '@/components/NotificationsPage';
 import StatistiquesPage from '@/components/StatistiquesPage';
 import DeadlineMonitor from '@/components/DeadlineMonitor';
 import { AdminUsers, AdminPermissions, TemoinTable, AdminArchives } from '@/components/AdminPages';
+import { useAutoDeadlineNotifications } from '@/hooks/useAutoDeadlineNotifications';
 
 function AppContent() {
   const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
+  useAutoDeadlineNotifications();
   const [selectedMarcheId, setSelectedMarcheId] = useState<string | null>(null);
 
   if (!isAuthenticated) return <LoginPage />;
