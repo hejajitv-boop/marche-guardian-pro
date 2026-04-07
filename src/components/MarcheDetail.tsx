@@ -188,11 +188,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   ))}
                 </TableBody>
               </Table>
+              <DocumentUploader marcheId={marcheId} procedure="correspondances" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* ENGAGEMENT */}
         <TabsContent value="engagement">
           <Card className="card-shadow">
             <CardHeader><CardTitle className="text-base">Phase d'Engagement — Marché Initial</CardTitle></CardHeader>
@@ -223,11 +222,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   </div>
                 ))}
               </div>
+              <DocumentUploader marcheId={marcheId} procedure="engagement" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* AVENANT */}
         <TabsContent value="avenant">
           <Card className="card-shadow">
             <CardHeader><CardTitle className="text-base">Avenant / Augmentation d'Engagement</CardTitle></CardHeader>
@@ -259,11 +257,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   </div>
                 ))}
               </div>
+              <DocumentUploader marcheId={marcheId} procedure="avenant" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* GARANTIES */}
         <TabsContent value="garanties">
           <Card className="card-shadow">
             <CardHeader><CardTitle className="text-base">Garanties</CardTitle></CardHeader>
@@ -293,11 +290,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   </div>
                 ))}
               </div>
+              <DocumentUploader marcheId={marcheId} procedure="garanties" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* ASSURANCES */}
         <TabsContent value="assurances">
           <Card className="card-shadow">
             <CardHeader><CardTitle className="text-base">Assurances</CardTitle></CardHeader>
@@ -319,11 +315,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   </div>
                 ))}
               </div>
+              <DocumentUploader marcheId={marcheId} procedure="assurances" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* DELAIS */}
         <TabsContent value="delais">
           <Card className="card-shadow">
             <CardHeader><CardTitle className="text-base">Délais</CardTitle></CardHeader>
@@ -347,11 +342,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   </div>
                 ))}
               </div>
+              <DocumentUploader marcheId={marcheId} procedure="delais" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* EXECUTION - ORDRES DE SERVICE */}
         <TabsContent value="execution">
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -382,11 +376,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   ))}
                 </TableBody>
               </Table>
+              <DocumentUploader marcheId={marcheId} procedure="execution" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* LIQUIDATION */}
         <TabsContent value="liquidation">
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -418,11 +411,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   ))}
                 </TableBody>
               </Table>
+              <DocumentUploader marcheId={marcheId} procedure="liquidation" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* OS AVENANT */}
         <TabsContent value="os_avenant">
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -453,11 +445,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   ))}
                 </TableBody>
               </Table>
+              <DocumentUploader marcheId={marcheId} procedure="ordres_service_avenant" />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* RECEPTION */}
         <TabsContent value="reception">
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -495,10 +486,10 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                   ))}
                 </TableBody>
               </Table>
+              <DocumentUploader marcheId={marcheId} procedure="reception" />
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
     </div>
   );
 }
