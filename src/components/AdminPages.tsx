@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -143,30 +144,17 @@ export function AdminPermissions() {
   );
 }
 
-export function AdminTemoin() {
-  const { temoinEntries } = useAuth() as any;
-  const { temoinEntries: entries } = require('@/contexts/DataContext').useData ? useDataProxy() : { temoinEntries: [] };
-  
-  return <TemoinTable />;
-}
-
-function useDataProxy() {
-  // eslint-disable-next-line
-  const { useData } = require('@/contexts/DataContext');
-  return useData();
-}
-
 export function TemoinTable() {
+  const { temoinEntries } = useData();
+  const { allUsers } = useAuth();
   const [search, setSearch] = useState('');
-  const entries: any[] = JSON.parse(localStorage.getItem('gm_temoin') || '[]');
-  const users: any[] = JSON.parse(localStorage.getItem('gm_users') || '[]');
 
   const getUserName = (id: string) => {
-    const u = users.find((u: any) => u.id === id);
+    const u = allUsers.find(u => u.id === id);
     return u ? `${u.prenom} ${u.nom}` : id;
   };
 
-  const filtered = entries.filter(e =>
+  const filtered = temoinEntries.filter(e =>
     e.description.toLowerCase().includes(search.toLowerCase()) ||
     getUserName(e.userId).toLowerCase().includes(search.toLowerCase())
   ).reverse();
@@ -186,7 +174,7 @@ export function TemoinTable() {
               {filtered.length === 0 ? (
                 <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Aucune entrée</TableCell></TableRow>
               ) : (
-                filtered.map((e: any) => (
+                filtered.map(e => (
                   <TableRow key={e.id}>
                     <TableCell className="text-xs">{e.dateOperation}</TableCell>
                     <TableCell className="text-xs">{e.heureOperation}</TableCell>
@@ -206,9 +194,9 @@ export function TemoinTable() {
 }
 
 export function AdminArchives() {
-  const archives: any[] = JSON.parse(localStorage.getItem('gm_docarchive') || '[]');
-  const users: any[] = JSON.parse(localStorage.getItem('gm_users') || '[]');
-  const getUserName = (id: string) => { const u = users.find((u: any) => u.id === id); return u ? `${u.prenom} ${u.nom}` : id; };
+  const { docArchives } = useData();
+  const { allUsers } = useAuth();
+  const getUserName = (id: string) => { const u = allUsers.find(u => u.id === id); return u ? `${u.prenom} ${u.nom}` : id; };
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -221,10 +209,10 @@ export function AdminArchives() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {archives.length === 0 ? (
+              {docArchives.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucun document archivé</TableCell></TableRow>
               ) : (
-                archives.map((a: any) => (
+                docArchives.map(a => (
                   <TableRow key={a.id}>
                     <TableCell>{a.nomDocument}</TableCell>
                     <TableCell>{a.marcheId}</TableCell>
