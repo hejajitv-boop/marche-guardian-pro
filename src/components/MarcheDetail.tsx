@@ -490,6 +490,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
             </CardContent>
           </Card>
         </TabsContent>
+      </Tabs>
     </div>
   );
 }
