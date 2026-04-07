@@ -8,6 +8,7 @@ import MarchesList from '@/components/MarchesList';
 import MarcheDetail from '@/components/MarcheDetail';
 import NotificationsPage from '@/components/NotificationsPage';
 import StatistiquesPage from '@/components/StatistiquesPage';
+import DeadlineMonitor from '@/components/DeadlineMonitor';
 import { AdminUsers, AdminPermissions, TemoinTable, AdminArchives } from '@/components/AdminPages';
 
 function AppContent() {
@@ -37,6 +38,7 @@ function AppContent() {
       case 'marches_list': return <MarchesList onSelectMarche={handleSelectMarche} />;
       case 'bons_commande': return <MarchesList onSelectMarche={handleSelectMarche} />;
       case 'notifications': return <NotificationsPage />;
+      case 'deadlines': return <DeadlineMonitor />;
       case 'statistiques': return <StatistiquesPage />;
       case 'admin_users': return <AdminUsers />;
       case 'admin_permissions': return <AdminPermissions />;

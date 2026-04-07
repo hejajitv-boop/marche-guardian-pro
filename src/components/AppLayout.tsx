@@ -43,6 +43,7 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
     { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard className="h-4 w-4" /> },
     { id: 'marches', label: 'Marchés', icon: <FileText className="h-4 w-4" />, expandable: true },
     { id: 'bons_commande', label: 'Bons de commande', icon: <ShoppingCart className="h-4 w-4" /> },
+    { id: 'deadlines', label: 'Suivi des délais', icon: <Clock className="h-4 w-4" /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell className="h-4 w-4" />, badge: unreadCount },
     { id: 'statistiques', label: 'Statistiques', icon: <BarChart3 className="h-4 w-4" /> },
   ];
@@ -170,6 +171,7 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
             {currentPage === 'bons_commande' && 'Bons de commande'}
             {currentPage === 'notifications' && 'Notifications'}
             {currentPage === 'statistiques' && 'Statistiques et rapports'}
+            {currentPage === 'deadlines' && 'Suivi des délais'}
             {currentPage === 'admin_users' && 'Gestion des utilisateurs'}
             {currentPage === 'admin_permissions' && 'Gestion des permissions'}
             {currentPage === 'admin_temoin' && 'Journal des activités (Témoin)'}
