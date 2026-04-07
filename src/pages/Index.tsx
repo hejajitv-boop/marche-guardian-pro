@@ -1,16 +1,68 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { useAuth, AuthProvider } from '@/contexts/AuthContext';
+import { DataProvider } from '@/contexts/DataContext';
+import LoginPage from '@/pages/LoginPage';
+import AppLayout from '@/components/AppLayout';
+import Dashboard from '@/components/Dashboard';
+import MarchesList from '@/components/MarchesList';
+import MarcheDetail from '@/components/MarcheDetail';
+import NotificationsPage from '@/components/NotificationsPage';
+import StatistiquesPage from '@/components/StatistiquesPage';
+import { AdminUsers, AdminPermissions, TemoinTable, AdminArchives } from '@/components/AdminPages';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+function AppContent() {
+  const { isAuthenticated, user } = useAuth();
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [selectedMarcheId, setSelectedMarcheId] = useState<string | null>(null);
+
+  if (!isAuthenticated) return <LoginPage />;
+
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page);
+    setSelectedMarcheId(null);
+  };
+
+  const handleSelectMarche = (id: string) => {
+    setSelectedMarcheId(id);
+    setCurrentPage('marche_detail_' + id);
+  };
+
+  const renderPage = () => {
+    if (selectedMarcheId) {
+      return <MarcheDetail marcheId={selectedMarcheId} onBack={() => { setSelectedMarcheId(null); setCurrentPage('marches_list'); }} />;
+    }
+
+    switch (currentPage) {
+      case 'dashboard': return <Dashboard />;
+      case 'marches_list': return <MarchesList onSelectMarche={handleSelectMarche} />;
+      case 'bons_commande': return <MarchesList onSelectMarche={handleSelectMarche} />;
+      case 'notifications': return <NotificationsPage />;
+      case 'statistiques': return <StatistiquesPage />;
+      case 'admin_users': return <AdminUsers />;
+      case 'admin_permissions': return <AdminPermissions />;
+      case 'admin_temoin': return <TemoinTable />;
+      case 'admin_archives': return <AdminArchives />;
+      default:
+        if (currentPage.startsWith('procedure_')) {
+          return <MarchesList onSelectMarche={handleSelectMarche} />;
+        }
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <AppLayout currentPage={currentPage} onNavigate={handleNavigate}>
+      {renderPage()}
+    </AppLayout>
   );
-};
+}
 
-const Index = PlaceholderIndex;
+const Index = () => (
+  <DataProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  </DataProvider>
+);
 
 export default Index;
