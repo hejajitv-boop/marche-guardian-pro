@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Plus, Trash2, Save, Upload, Send } from 'lucide-react';
+import DocumentUploader from '@/components/DocumentUploader';
 import type { Marche, Correspondance, OrdreService, OperationLiquidation, OrdreServiceAvenant, Reception, MarcheStatus } from '@/types';
 import { toast } from 'sonner';
 
