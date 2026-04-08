@@ -43,6 +43,7 @@ function AppContent() {
       case 'notifications': return <NotificationsPage />;
       case 'deadlines': return <DeadlineMonitor />;
       case 'statistiques': return <StatistiquesPage />;
+      case 'admin_dashboard': return <AdminDashboard />;
       case 'admin_users': return <AdminUsers />;
       case 'admin_permissions': return <AdminPermissions />;
       case 'admin_temoin': return <TemoinTable />;
