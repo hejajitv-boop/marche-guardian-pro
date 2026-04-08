@@ -84,10 +84,18 @@ export function AdminUsers() {
   );
 }
 
+const LEVEL_LABELS: Record<PermissionLevel, { label: string; color: string }> = {
+  none: { label: 'Aucun accès', color: 'bg-muted text-muted-foreground' },
+  read: { label: 'Consultation', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
+  write: { label: 'Modification', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
+  delete: { label: 'Suppression', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
+  full: { label: 'Accès complet', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
+};
+
 export function AdminPermissions() {
   const { allUsers, getUserPermissions, setUserPermission } = useAuth();
   const [selectedUser, setSelectedUser] = useState('');
-  const nonAdminUsers = allUsers.filter(u => !u.isAdmin);
+  const nonAdminUsers = allUsers.filter(u => !u.isAdmin && u.isActive);
   const perms = selectedUser ? getUserPermissions(selectedUser) : [];
 
   const getLevel = (proc: ProcedureType): PermissionLevel => {
@@ -95,51 +103,121 @@ export function AdminPermissions() {
     return p?.level || 'none';
   };
 
-  return (
-    <div className="space-y-4 animate-fade-in">
-      <Card className="card-shadow">
-        <CardHeader><CardTitle className="text-base">Gestion des permissions</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="max-w-sm space-y-1.5">
-            <Label>Sélectionner un utilisateur</Label>
-            <Select value={selectedUser} onValueChange={setSelectedUser}>
-              <SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger>
-              <SelectContent>
-                {nonAdminUsers.map(u => <SelectItem key={u.id} value={u.id}>{u.prenom} {u.nom} ({u.matricule})</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
+  const applyToAll = (level: PermissionLevel) => {
+    if (!selectedUser) return;
+    (Object.keys(PROCEDURE_LABELS) as ProcedureType[]).forEach(proc => {
+      setUserPermission(selectedUser, proc, level);
+    });
+    toast.success(`Toutes les permissions définies sur "${LEVEL_LABELS[level].label}"`);
+  };
 
-          {selectedUser && (
+  const selectedUserObj = allUsers.find(u => u.id === selectedUser);
+
+  // Summary of all users' permissions
+  const usersSummary = nonAdminUsers.map(u => {
+    const up = getUserPermissions(u.id);
+    const total = Object.keys(PROCEDURE_LABELS).length;
+    const configured = up.filter(p => p.level !== 'none').length;
+    return { ...u, configured, total };
+  });
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Users overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {usersSummary.map(u => (
+          <Card
+            key={u.id}
+            className={`cursor-pointer transition-all hover:shadow-md ${selectedUser === u.id ? 'ring-2 ring-primary' : ''}`}
+            onClick={() => setSelectedUser(u.id)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-sm">{u.prenom} {u.nom}</p>
+                  <p className="text-xs text-muted-foreground">{u.matricule} — {u.fonction}</p>
+                </div>
+                <Badge variant={u.configured > 0 ? 'default' : 'secondary'} className="text-xs">
+                  {u.configured}/{u.total}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Permission matrix */}
+      {selectedUser && selectedUserObj && (
+        <Card className="card-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">
+                Permissions de {selectedUserObj.prenom} {selectedUserObj.nom}
+              </CardTitle>
+              <div className="flex gap-2">
+                <Select onValueChange={(v: PermissionLevel) => applyToAll(v)}>
+                  <SelectTrigger className="w-[220px] h-8 text-xs">
+                    <SelectValue placeholder="Appliquer à toutes les procédures" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Tout : Aucun accès</SelectItem>
+                    <SelectItem value="read">Tout : Consultation</SelectItem>
+                    <SelectItem value="write">Tout : Modification</SelectItem>
+                    <SelectItem value="delete">Tout : Suppression</SelectItem>
+                    <SelectItem value="full">Tout : Accès complet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Procédure</TableHead><TableHead>Niveau d'accès</TableHead>
+                  <TableHead className="w-[250px]">Procédure</TableHead>
+                  <TableHead>Niveau actuel</TableHead>
+                  <TableHead className="w-[220px]">Modifier</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(Object.keys(PROCEDURE_LABELS) as ProcedureType[]).map(proc => (
-                  <TableRow key={proc}>
-                    <TableCell className="font-medium">{PROCEDURE_LABELS[proc]}</TableCell>
-                    <TableCell>
-                      <Select value={getLevel(proc)} onValueChange={(v: PermissionLevel) => { setUserPermission(selectedUser, proc, v); toast.success('Permission mise à jour'); }}>
-                        <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Aucun accès</SelectItem>
-                          <SelectItem value="read">Consultation uniquement</SelectItem>
-                          <SelectItem value="write">Ajout et modification</SelectItem>
-                          <SelectItem value="delete">Ajout, modification et suppression</SelectItem>
-                          <SelectItem value="full">Accès complet</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {(Object.keys(PROCEDURE_LABELS) as ProcedureType[]).map(proc => {
+                  const level = getLevel(proc);
+                  return (
+                    <TableRow key={proc}>
+                      <TableCell className="font-medium">{PROCEDURE_LABELS[proc]}</TableCell>
+                      <TableCell>
+                        <Badge className={`text-xs ${LEVEL_LABELS[level].color}`}>
+                          {LEVEL_LABELS[level].label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Select value={level} onValueChange={(v: PermissionLevel) => { setUserPermission(selectedUser, proc, v); toast.success('Permission mise à jour'); }}>
+                          <SelectTrigger className="w-[200px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Aucun accès</SelectItem>
+                            <SelectItem value="read">Consultation uniquement</SelectItem>
+                            <SelectItem value="write">Ajout et modification</SelectItem>
+                            <SelectItem value="delete">Ajout, modification et suppression</SelectItem>
+                            <SelectItem value="full">Accès complet</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {!selectedUser && (
+        <Card className="card-shadow">
+          <CardContent className="py-12 text-center text-muted-foreground">
+            Sélectionnez un utilisateur ci-dessus pour gérer ses permissions
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
