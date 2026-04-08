@@ -220,6 +220,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                     <Input
                       type={field.type || 'text'}
                       className="h-8 text-sm"
+                      readOnly={!canWrite('engagement')}
                       value={(marche.engagement as any)?.[field.key] ?? ''}
                       onChange={e => {
                         const val = field.type === 'number' ? Number(e.target.value) : e.target.value;
@@ -255,6 +256,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                     <Input
                       type={field.type || 'text'}
                       className="h-8 text-sm"
+                      readOnly={!canWrite('avenant')}
                       value={(marche.avenant as any)?.[field.key] ?? ''}
                       onChange={e => {
                         const val = field.type === 'number' ? Number(e.target.value) : e.target.value;
@@ -288,6 +290,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                     <Input
                       type={field.type || 'text'}
                       className="h-8 text-sm"
+                      readOnly={!canWrite('garanties')}
                       value={(marche.garanties as any)?.[field.key] ?? ''}
                       onChange={e => {
                         const val = field.type === 'number' ? Number(e.target.value) : e.target.value;
@@ -316,6 +319,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                     <Label className="text-xs">{field.label}</Label>
                     <Input
                       className="h-8 text-sm"
+                      readOnly={!canWrite('assurances')}
                       value={(marche.assurances as any)?.[field.key] ?? ''}
                       onChange={e => save({ assurances: { ...(marche.assurances || {} as any), [field.key]: e.target.value } })}
                     />
@@ -343,6 +347,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                     <Input
                       type={field.type || 'text'}
                       className="h-8 text-sm"
+                      readOnly={!canWrite('delais')}
                       value={(marche.delais as any)?.[field.key] ?? ''}
                       onChange={e => save({ delais: { ...(marche.delais || {} as any), [field.key]: e.target.value } })}
                     />
@@ -369,11 +374,11 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                 <TableBody>
                   {marche.ordresServiceInitial.map((os, i) => (
                     <TableRow key={os.id}>
-                      <TableCell><Input className="h-8 text-xs" value={os.nature} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, nature: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs w-20" value={os.numero} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, numero: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={os.dateEtablissement} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, dateEtablissement: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={os.dateNotification} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, dateNotification: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={os.observations || ''} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, observations: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('execution')} value={os.nature} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, nature: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs w-20" readOnly={!canWrite('execution')} value={os.numero} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, numero: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" readOnly={!canWrite('execution')} value={os.dateEtablissement} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, dateEtablissement: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" readOnly={!canWrite('execution')} value={os.dateNotification} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, dateNotification: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('execution')} value={os.observations || ''} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, observations: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
                       <TableCell>
                         {canDelete('execution') && (
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ ordresServiceInitial: marche.ordresServiceInitial.filter(x => x.id !== os.id) })}>
@@ -405,12 +410,12 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                 <TableBody>
                   {marche.operations.map((op, i) => (
                     <TableRow key={op.id}>
-                      <TableCell><Input className="h-8 text-xs" value={op.type} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, type: e.target.value }; save({ operations: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs w-20" value={op.numeroOP} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, numeroOP: e.target.value }; save({ operations: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs w-20" value={op.numeroBE} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, numeroBE: e.target.value }; save({ operations: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={op.date} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, date: e.target.value }; save({ operations: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs w-28" type="number" value={op.montant} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, montant: Number(e.target.value) }; save({ operations: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs w-28" type="number" value={op.cumul} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, cumul: Number(e.target.value) }; save({ operations: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('liquidation')} value={op.type} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, type: e.target.value }; save({ operations: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs w-20" readOnly={!canWrite('liquidation')} value={op.numeroOP} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, numeroOP: e.target.value }; save({ operations: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs w-20" readOnly={!canWrite('liquidation')} value={op.numeroBE} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, numeroBE: e.target.value }; save({ operations: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" readOnly={!canWrite('liquidation')} value={op.date} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, date: e.target.value }; save({ operations: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs w-28" type="number" readOnly={!canWrite('liquidation')} value={op.montant} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, montant: Number(e.target.value) }; save({ operations: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs w-28" type="number" readOnly={!canWrite('liquidation')} value={op.cumul} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, cumul: Number(e.target.value) }; save({ operations: arr }); }} /></TableCell>
                       <TableCell>
                         {canDelete('liquidation') && (
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ operations: marche.operations.filter(x => x.id !== op.id) })}>
@@ -442,11 +447,11 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                 <TableBody>
                   {marche.ordresServiceAvenant.map((osa, i) => (
                     <TableRow key={osa.id}>
-                      <TableCell><Input className="h-8 text-xs" value={osa.nature} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, nature: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs w-20" value={osa.numero} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, numero: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={osa.dateEtablissement} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, dateEtablissement: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={osa.dateNotification} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, dateNotification: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={osa.observations} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, observations: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('ordres_service_avenant')} value={osa.nature} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, nature: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs w-20" readOnly={!canWrite('ordres_service_avenant')} value={osa.numero} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, numero: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" readOnly={!canWrite('ordres_service_avenant')} value={osa.dateEtablissement} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, dateEtablissement: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" readOnly={!canWrite('ordres_service_avenant')} value={osa.dateNotification} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, dateNotification: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('ordres_service_avenant')} value={osa.observations} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, observations: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
                       <TableCell>
                         {canDelete('ordres_service_avenant') && (
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ ordresServiceAvenant: marche.ordresServiceAvenant.filter(x => x.id !== osa.id) })}>
@@ -487,9 +492,9 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={r.pvNumero} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, pvNumero: e.target.value }; save({ receptions: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={r.date} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, date: e.target.value }; save({ receptions: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={r.observations} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, observations: e.target.value }; save({ receptions: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('reception')} value={r.pvNumero} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, pvNumero: e.target.value }; save({ receptions: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" readOnly={!canWrite('reception')} value={r.date} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, date: e.target.value }; save({ receptions: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" readOnly={!canWrite('reception')} value={r.observations} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, observations: e.target.value }; save({ receptions: arr }); }} /></TableCell>
                       <TableCell>
                         {canDelete('reception') && (
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ receptions: marche.receptions.filter(x => x.id !== r.id) })}>
