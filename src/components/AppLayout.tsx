@@ -49,6 +49,7 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
   ];
 
   const adminItems = user?.isAdmin ? [
+    { id: 'admin_dashboard', label: 'Tableau de bord admin', icon: <BarChart3 className="h-4 w-4" /> },
     { id: 'admin_users', label: 'Gestion des utilisateurs', icon: <Users className="h-4 w-4" /> },
     { id: 'admin_permissions', label: 'Permissions', icon: <Shield className="h-4 w-4" /> },
     { id: 'admin_temoin', label: 'Journal des activités', icon: <History className="h-4 w-4" /> },
@@ -175,6 +176,7 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
             {currentPage === 'admin_users' && 'Gestion des utilisateurs'}
             {currentPage === 'admin_permissions' && 'Gestion des permissions'}
             {currentPage === 'admin_temoin' && 'Journal des activités (Témoin)'}
+            {currentPage === 'admin_dashboard' && 'Tableau de bord administrateur'}
             {currentPage === 'admin_archives' && 'Archives des documents supprimés'}
             {currentPage.startsWith('procedure_') && PROCEDURE_LABELS[currentPage.replace('procedure_', '') as ProcedureType]}
             {currentPage.startsWith('marche_detail_') && 'Détail du marché'}
