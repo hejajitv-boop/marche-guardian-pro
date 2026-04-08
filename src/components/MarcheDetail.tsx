@@ -11,10 +11,52 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Save, Upload, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Upload, Send, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import DocumentUploader from '@/components/DocumentUploader';
 import type { Marche, Correspondance, OrdreService, OperationLiquidation, OrdreServiceAvenant, Reception, MarcheStatus } from '@/types';
 import { toast } from 'sonner';
+
+// ===== WORKFLOW: Prerequisite definitions =====
+interface WorkflowStep {
+  key: string;
+  label: string;
+  isComplete: (m: Marche) => boolean;
+  prerequisites: string[];
+  prereqLabel: string;
+}
+
+const WORKFLOW_STEPS: WorkflowStep[] = [
+  { key: 'correspondances', label: 'Correspondances', isComplete: (m) => m.correspondances.length > 0, prerequisites: [], prereqLabel: '' },
+  { key: 'engagement', label: 'Engagement', isComplete: (m) => !!m.engagement && !!m.engagement.numeroVisa, prerequisites: ['correspondances'], prereqLabel: 'Correspondances (au moins une)' },
+  { key: 'garanties', label: 'Garanties', isComplete: (m) => !!m.garanties && m.garanties.cautionnementMontant > 0, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'assurances', label: 'Assurances', isComplete: (m) => !!m.assurances && !!m.assurances.responsabiliteCivile, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'delais', label: 'Délais', isComplete: (m) => !!m.delais && !!m.delais.delaiExecution, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'execution', label: 'Exécution / OS', isComplete: (m) => m.ordresServiceInitial.length > 0, prerequisites: ['engagement', 'garanties', 'assurances', 'delais'], prereqLabel: 'Engagement, Garanties, Assurances et Délais' },
+  { key: 'avenant', label: 'Avenant', isComplete: (m) => !!m.avenant && !!m.avenant.numeroVisa, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'os_avenant', label: 'OS Avenant', isComplete: (m) => m.ordresServiceAvenant.length > 0, prerequisites: ['avenant'], prereqLabel: 'Avenant (visa obtenu)' },
+  { key: 'liquidation', label: 'Liquidation', isComplete: (m) => m.operations.length > 0, prerequisites: ['execution'], prereqLabel: "Phase d'Exécution (au moins un OS)" },
+  { key: 'reception', label: 'Réception', isComplete: (m) => m.receptions.length > 0, prerequisites: ['liquidation'], prereqLabel: 'Liquidation (au moins une opération)' },
+];
+
+function getStepStatus(m: Marche, stepKey: string): { unlocked: boolean; complete: boolean; missingPrereqs: string[] } {
+  const step = WORKFLOW_STEPS.find(s => s.key === stepKey);
+  if (!step) return { unlocked: true, complete: false, missingPrereqs: [] };
+  
+  const missingPrereqs: string[] = [];
+  for (const prereq of step.prerequisites) {
+    const prereqStep = WORKFLOW_STEPS.find(s => s.key === prereq);
+    if (prereqStep && !prereqStep.isComplete(m)) {
+      missingPrereqs.push(prereqStep.label);
+    }
+  }
+  
+  return {
+    unlocked: missingPrereqs.length === 0,
+    complete: step.isComplete(m),
+    missingPrereqs,
+  };
+}
 
 const STATUS_LABELS: Record<MarcheStatus, string> = {
   en_cours: 'En cours', approuve: 'Approuvé', execute: 'Exécuté', liquide: 'Liquidé',
