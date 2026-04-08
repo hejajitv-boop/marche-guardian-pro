@@ -167,7 +167,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Correspondances</CardTitle>
-              <Button size="sm" className="gap-1" onClick={addCorrespondance}><Plus className="h-3 w-3" /> Ajouter</Button>
+              {canWrite('correspondances') && <Button size="sm" className="gap-1" onClick={addCorrespondance}><Plus className="h-3 w-3" /> Ajouter</Button>}
             </CardHeader>
             <CardContent>
               <Table>
