@@ -10,6 +10,7 @@ import NotificationsPage from '@/components/NotificationsPage';
 import StatistiquesPage from '@/components/StatistiquesPage';
 import DeadlineMonitor from '@/components/DeadlineMonitor';
 import { AdminUsers, AdminPermissions, TemoinTable, AdminArchives } from '@/components/AdminPages';
+import AdminDashboard from '@/components/AdminDashboard';
 import { useAutoDeadlineNotifications } from '@/hooks/useAutoDeadlineNotifications';
 
 function AppContent() {
