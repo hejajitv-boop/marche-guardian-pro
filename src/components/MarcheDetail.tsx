@@ -179,15 +179,17 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                 <TableBody>
                   {marche.correspondances.map((c, i) => (
                     <TableRow key={c.id}>
-                      <TableCell><Input className="h-8 text-xs" value={c.intitule} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, intitule: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" type="date" value={c.date} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, date: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={c.referenceArrive} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, referenceArrive: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={c.referenceDepart} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, referenceDepart: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
-                      <TableCell><Input className="h-8 text-xs" value={c.objet} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, objet: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" value={c.intitule} readOnly={!canWrite('correspondances')} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, intitule: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" type="date" value={c.date} readOnly={!canWrite('correspondances')} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, date: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" value={c.referenceArrive} readOnly={!canWrite('correspondances')} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, referenceArrive: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" value={c.referenceDepart} readOnly={!canWrite('correspondances')} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, referenceDepart: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
+                      <TableCell><Input className="h-8 text-xs" value={c.objet} readOnly={!canWrite('correspondances')} onChange={e => { const arr = [...marche.correspondances]; arr[i] = { ...c, objet: e.target.value }; save({ correspondances: arr }); }} /></TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ correspondances: marche.correspondances.filter(x => x.id !== c.id) })}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {canDelete('correspondances') && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ correspondances: marche.correspondances.filter(x => x.id !== c.id) })}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
