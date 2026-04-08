@@ -11,10 +11,52 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Save, Upload, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Upload, Send, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import DocumentUploader from '@/components/DocumentUploader';
 import type { Marche, Correspondance, OrdreService, OperationLiquidation, OrdreServiceAvenant, Reception, MarcheStatus } from '@/types';
 import { toast } from 'sonner';
+
+// ===== WORKFLOW: Prerequisite definitions =====
+interface WorkflowStep {
+  key: string;
+  label: string;
+  isComplete: (m: Marche) => boolean;
+  prerequisites: string[];
+  prereqLabel: string;
+}
+
+const WORKFLOW_STEPS: WorkflowStep[] = [
+  { key: 'correspondances', label: 'Correspondances', isComplete: (m) => m.correspondances.length > 0, prerequisites: [], prereqLabel: '' },
+  { key: 'engagement', label: 'Engagement', isComplete: (m) => !!m.engagement && !!m.engagement.numeroVisa, prerequisites: ['correspondances'], prereqLabel: 'Correspondances (au moins une)' },
+  { key: 'garanties', label: 'Garanties', isComplete: (m) => !!m.garanties && m.garanties.cautionnementMontant > 0, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'assurances', label: 'Assurances', isComplete: (m) => !!m.assurances && !!m.assurances.responsabiliteCivile, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'delais', label: 'Délais', isComplete: (m) => !!m.delais && !!m.delais.delaiExecution, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'execution', label: 'Exécution / OS', isComplete: (m) => m.ordresServiceInitial.length > 0, prerequisites: ['engagement', 'garanties', 'assurances', 'delais'], prereqLabel: 'Engagement, Garanties, Assurances et Délais' },
+  { key: 'avenant', label: 'Avenant', isComplete: (m) => !!m.avenant && !!m.avenant.numeroVisa, prerequisites: ['engagement'], prereqLabel: "Phase d'Engagement (visa obtenu)" },
+  { key: 'os_avenant', label: 'OS Avenant', isComplete: (m) => m.ordresServiceAvenant.length > 0, prerequisites: ['avenant'], prereqLabel: 'Avenant (visa obtenu)' },
+  { key: 'liquidation', label: 'Liquidation', isComplete: (m) => m.operations.length > 0, prerequisites: ['execution'], prereqLabel: "Phase d'Exécution (au moins un OS)" },
+  { key: 'reception', label: 'Réception', isComplete: (m) => m.receptions.length > 0, prerequisites: ['liquidation'], prereqLabel: 'Liquidation (au moins une opération)' },
+];
+
+function getStepStatus(m: Marche, stepKey: string): { unlocked: boolean; complete: boolean; missingPrereqs: string[] } {
+  const step = WORKFLOW_STEPS.find(s => s.key === stepKey);
+  if (!step) return { unlocked: true, complete: false, missingPrereqs: [] };
+  
+  const missingPrereqs: string[] = [];
+  for (const prereq of step.prerequisites) {
+    const prereqStep = WORKFLOW_STEPS.find(s => s.key === prereq);
+    if (prereqStep && !prereqStep.isComplete(m)) {
+      missingPrereqs.push(prereqStep.label);
+    }
+  }
+  
+  return {
+    unlocked: missingPrereqs.length === 0,
+    complete: step.isComplete(m),
+    missingPrereqs,
+  };
+}
 
 const STATUS_LABELS: Record<MarcheStatus, string> = {
   en_cours: 'En cours', approuve: 'Approuvé', execute: 'Exécuté', liquide: 'Liquidé',
@@ -147,19 +189,69 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
         </Dialog>
       </div>
 
+      {/* Workflow Progress Bar */}
+      <Card className="card-shadow">
+        <CardContent className="pt-4 pb-3">
+          <div className="flex items-center gap-1 overflow-x-auto pb-1">
+            {WORKFLOW_STEPS.map((step, idx) => {
+              const status = getStepStatus(marche, step.key);
+              return (
+                <TooltipProvider key={step.key}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1">
+                        <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                          status.complete ? 'bg-primary/10 text-primary' :
+                          status.unlocked ? 'bg-accent text-accent-foreground' :
+                          'bg-muted text-muted-foreground opacity-60'
+                        }`}>
+                          {status.complete ? <CheckCircle2 className="h-3 w-3" /> :
+                           !status.unlocked ? <Lock className="h-3 w-3" /> :
+                           <AlertCircle className="h-3 w-3" />}
+                          <span className="whitespace-nowrap">{step.label}</span>
+                        </div>
+                        {idx < WORKFLOW_STEPS.length - 1 && <span className="text-muted-foreground mx-0.5">→</span>}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {status.complete ? `${step.label} — Complété ✓` :
+                       status.unlocked ? `${step.label} — En attente de saisie` :
+                       `🔒 Prérequis manquant(s) : ${status.missingPrereqs.join(', ')}`}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex flex-wrap h-auto gap-1">
-          {canRead('correspondances') && <TabsTrigger value="correspondances">Correspondances</TabsTrigger>}
-          {canRead('engagement') && <TabsTrigger value="engagement">Engagement</TabsTrigger>}
-          {canRead('avenant') && <TabsTrigger value="avenant">Avenant</TabsTrigger>}
-          {canRead('garanties') && <TabsTrigger value="garanties">Garanties</TabsTrigger>}
-          {canRead('assurances') && <TabsTrigger value="assurances">Assurances</TabsTrigger>}
-          {canRead('delais') && <TabsTrigger value="delais">Délais</TabsTrigger>}
-          {canRead('execution') && <TabsTrigger value="execution">Exécution / OS</TabsTrigger>}
-          {canRead('liquidation') && <TabsTrigger value="liquidation">Liquidation</TabsTrigger>}
-          {canRead('ordres_service_avenant') && <TabsTrigger value="os_avenant">OS Avenant</TabsTrigger>}
-          {canRead('reception') && <TabsTrigger value="reception">Réception</TabsTrigger>}
+          {WORKFLOW_STEPS.map(step => {
+            const procKey = step.key === 'os_avenant' ? 'ordres_service_avenant' : step.key as import('@/types').ProcedureType;
+            const status = getStepStatus(marche, step.key);
+            if (!canRead(procKey)) return null;
+            return (
+              <TooltipProvider key={step.key}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <TabsTrigger value={step.key} disabled={!status.unlocked} className="gap-1">
+                        {!status.unlocked && <Lock className="h-3 w-3" />}
+                        {status.complete && <CheckCircle2 className="h-3 w-3 text-green-600" />}
+                        {step.label}
+                      </TabsTrigger>
+                    </span>
+                  </TooltipTrigger>
+                  {!status.unlocked && (
+                    <TooltipContent>Prérequis : {status.missingPrereqs.join(', ')}</TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
         </TabsList>
 
         {/* CORRESPONDANCES */}
@@ -205,7 +297,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Phase d'Engagement — Marché Initial</CardTitle>
               <div className="flex gap-2">
                 {canWrite('engagement') && !marche.engagement && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ engagement: { formeEngagement: '', dateSaisie: '', dateEnvoi: '', montantMarcheInitial: 0, savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0 } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'engagement').unlocked} onClick={() => save({ engagement: { formeEngagement: '', dateSaisie: '', dateEnvoi: '', montantMarcheInitial: 0, savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0 } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'engagement').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('engagement') && marche.engagement && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ engagement: marche.engagement }); toast.success('Engagement enregistré'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -253,7 +345,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Avenant / Augmentation d'Engagement</CardTitle>
               <div className="flex gap-2">
                 {canWrite('avenant') && !marche.avenant && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ avenant: { dateSaisie: '', montantAvenant: 0, dateEnvoi: '', savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0, dateAugmentation: '', montantAugmentation: 0 } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'avenant').unlocked} onClick={() => save({ avenant: { dateSaisie: '', montantAvenant: 0, dateEnvoi: '', savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0, dateAugmentation: '', montantAugmentation: 0 } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'avenant').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('avenant') && marche.avenant && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ avenant: marche.avenant }); toast.success('Avenant enregistré'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -302,7 +394,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Garanties</CardTitle>
               <div className="flex gap-2">
                 {canWrite('garanties') && !marche.garanties && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ garanties: { cautionnement: '', cautionnementMontant: 0, cautionnementDate: '', cautionBancaireCautionnement: '', retenueGarantie: '', retenueGarantieMontant: 0, retenueGarantieDate: '', cautionBancaireRetenue: '' } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'garanties').unlocked} onClick={() => save({ garanties: { cautionnement: '', cautionnementMontant: 0, cautionnementDate: '', cautionBancaireCautionnement: '', retenueGarantie: '', retenueGarantieMontant: 0, retenueGarantieDate: '', cautionBancaireRetenue: '' } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'garanties').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('garanties') && marche.garanties && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ garanties: marche.garanties }); toast.success('Garanties enregistrées'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -349,7 +441,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Assurances</CardTitle>
               <div className="flex gap-2">
                 {canWrite('assurances') && !marche.assurances && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ assurances: { responsabiliteCivile: '', trc: '', dommagesOuvrage: '', accidentTravail: '' } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'assurances').unlocked} onClick={() => save({ assurances: { responsabiliteCivile: '', trc: '', dommagesOuvrage: '', accidentTravail: '' } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'assurances').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('assurances') && marche.assurances && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ assurances: marche.assurances }); toast.success('Assurances enregistrées'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -388,7 +480,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Délais</CardTitle>
               <div className="flex gap-2">
                 {canWrite('delais') && !marche.delais && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ delais: { delaiExecution: '', delaiGarantie: '' } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'delais').unlocked} onClick={() => save({ delais: { delaiExecution: '', delaiGarantie: '' } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'delais').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('delais') && marche.delais && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ delais: marche.delais }); toast.success('Délais enregistrés'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -427,7 +519,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Phase d'Exécution — Ordres de Service</CardTitle>
-              {canWrite('execution') && <Button size="sm" className="gap-1" onClick={addOS}><Plus className="h-3 w-3" /> Ajouter OS</Button>}
+              {canWrite('execution') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'execution').unlocked} onClick={addOS}><Plus className="h-3 w-3" /> Ajouter OS {!getStepStatus(marche, 'execution').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
@@ -463,7 +555,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Phase de Liquidation et Mandatement</CardTitle>
-              {canWrite('liquidation') && <Button size="sm" className="gap-1" onClick={addOperation}><Plus className="h-3 w-3" /> Ajouter</Button>}
+              {canWrite('liquidation') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'liquidation').unlocked} onClick={addOperation}><Plus className="h-3 w-3" /> Ajouter {!getStepStatus(marche, 'liquidation').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
@@ -500,7 +592,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Ordres de Service — Avenant</CardTitle>
-              {canWrite('ordres_service_avenant') && <Button size="sm" className="gap-1" onClick={addOSAvenant}><Plus className="h-3 w-3" /> Ajouter</Button>}
+              {canWrite('ordres_service_avenant') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'os_avenant').unlocked} onClick={addOSAvenant}><Plus className="h-3 w-3" /> Ajouter {!getStepStatus(marche, 'os_avenant').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
@@ -536,7 +628,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Réception</CardTitle>
-              {canWrite('reception') && <Button size="sm" className="gap-1" onClick={addReception}><Plus className="h-3 w-3" /> Ajouter</Button>}
+              {canWrite('reception') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'reception').unlocked} onClick={addReception}><Plus className="h-3 w-3" /> Ajouter {!getStepStatus(marche, 'reception').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
