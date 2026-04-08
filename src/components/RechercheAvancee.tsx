@@ -422,13 +422,13 @@ export default function RechercheAvancee({ onSelectMarche }: RechercheAvanceePro
                           </TableCell>
                           <TableCell className="text-sm">{marche?.numero || '—'}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className="text-xs">{d.phase || '—'}</Badge>
+                            <Badge variant="outline" className="text-xs">{d.procedure || '—'}</Badge>
                           </TableCell>
                           <TableCell>
                             <Badge variant="secondary" className="text-xs">{ext}</Badge>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{sizeKb} Ko</TableCell>
-                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{d.dateUpload?.split('T')[0] || '—'}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{d.uploadedAt?.split('T')[0] || '—'}</TableCell>
                         </TableRow>
                       );
                     })
