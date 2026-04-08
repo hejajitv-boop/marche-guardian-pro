@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   LayoutDashboard, FileText, ShoppingCart, Users, Bell, BarChart3, 
   Shield, LogOut, Menu, X, ChevronDown, ChevronRight,
-  FileCheck, Banknote, ClipboardCheck, Clock, BookOpen, History
+  FileCheck, Banknote, ClipboardCheck, Clock, BookOpen, History, SearchIcon
 } from 'lucide-react';
 import type { ProcedureType } from '@/types';
 import { PROCEDURE_LABELS } from '@/types';
@@ -46,6 +46,7 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
     { id: 'deadlines', label: 'Suivi des délais', icon: <Clock className="h-4 w-4" /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell className="h-4 w-4" />, badge: unreadCount },
     { id: 'statistiques', label: 'Statistiques', icon: <BarChart3 className="h-4 w-4" /> },
+    { id: 'recherche', label: 'Recherche avancée', icon: <SearchIcon className="h-4 w-4" /> },
   ];
 
   const adminItems = user?.isAdmin ? [
@@ -172,6 +173,7 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
             {currentPage === 'bons_commande' && 'Bons de commande'}
             {currentPage === 'notifications' && 'Notifications'}
             {currentPage === 'statistiques' && 'Statistiques et rapports'}
+            {currentPage === 'recherche' && 'Recherche avancée'}
             {currentPage === 'deadlines' && 'Suivi des délais'}
             {currentPage === 'admin_users' && 'Gestion des utilisateurs'}
             {currentPage === 'admin_permissions' && 'Gestion des permissions'}

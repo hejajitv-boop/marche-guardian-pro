@@ -11,6 +11,7 @@ import StatistiquesPage from '@/components/StatistiquesPage';
 import DeadlineMonitor from '@/components/DeadlineMonitor';
 import { AdminUsers, AdminPermissions, TemoinTable, AdminArchives } from '@/components/AdminPages';
 import AdminDashboard from '@/components/AdminDashboard';
+import RechercheAvancee from '@/components/RechercheAvancee';
 import { useAutoDeadlineNotifications } from '@/hooks/useAutoDeadlineNotifications';
 
 function AppContent() {
@@ -43,6 +44,7 @@ function AppContent() {
       case 'notifications': return <NotificationsPage />;
       case 'deadlines': return <DeadlineMonitor />;
       case 'statistiques': return <StatistiquesPage />;
+      case 'recherche': return <RechercheAvancee onSelectMarche={handleSelectMarche} />;
       case 'admin_dashboard': return <AdminDashboard />;
       case 'admin_users': return <AdminUsers />;
       case 'admin_permissions': return <AdminPermissions />;
