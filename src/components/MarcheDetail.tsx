@@ -375,9 +375,11 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                       <TableCell><Input className="h-8 text-xs" type="date" value={os.dateNotification} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, dateNotification: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
                       <TableCell><Input className="h-8 text-xs" value={os.observations || ''} onChange={e => { const arr = [...marche.ordresServiceInitial]; arr[i] = { ...os, observations: e.target.value }; save({ ordresServiceInitial: arr }); }} /></TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ ordresServiceInitial: marche.ordresServiceInitial.filter(x => x.id !== os.id) })}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {canDelete('execution') && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ ordresServiceInitial: marche.ordresServiceInitial.filter(x => x.id !== os.id) })}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -410,9 +412,11 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                       <TableCell><Input className="h-8 text-xs w-28" type="number" value={op.montant} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, montant: Number(e.target.value) }; save({ operations: arr }); }} /></TableCell>
                       <TableCell><Input className="h-8 text-xs w-28" type="number" value={op.cumul} onChange={e => { const arr = [...marche.operations]; arr[i] = { ...op, cumul: Number(e.target.value) }; save({ operations: arr }); }} /></TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ operations: marche.operations.filter(x => x.id !== op.id) })}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {canDelete('liquidation') && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ operations: marche.operations.filter(x => x.id !== op.id) })}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -444,9 +448,11 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                       <TableCell><Input className="h-8 text-xs" type="date" value={osa.dateNotification} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, dateNotification: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
                       <TableCell><Input className="h-8 text-xs" value={osa.observations} onChange={e => { const arr = [...marche.ordresServiceAvenant]; arr[i] = { ...osa, observations: e.target.value }; save({ ordresServiceAvenant: arr }); }} /></TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ ordresServiceAvenant: marche.ordresServiceAvenant.filter(x => x.id !== osa.id) })}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {canDelete('ordres_service_avenant') && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ ordresServiceAvenant: marche.ordresServiceAvenant.filter(x => x.id !== osa.id) })}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -485,9 +491,11 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
                       <TableCell><Input className="h-8 text-xs" type="date" value={r.date} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, date: e.target.value }; save({ receptions: arr }); }} /></TableCell>
                       <TableCell><Input className="h-8 text-xs" value={r.observations} onChange={e => { const arr = [...marche.receptions]; arr[i] = { ...r, observations: e.target.value }; save({ receptions: arr }); }} /></TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ receptions: marche.receptions.filter(x => x.id !== r.id) })}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {canDelete('reception') && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => save({ receptions: marche.receptions.filter(x => x.id !== r.id) })}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
