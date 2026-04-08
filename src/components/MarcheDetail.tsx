@@ -150,16 +150,16 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex flex-wrap h-auto gap-1">
-          <TabsTrigger value="correspondances">Correspondances</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
-          <TabsTrigger value="avenant">Avenant</TabsTrigger>
-          <TabsTrigger value="garanties">Garanties</TabsTrigger>
-          <TabsTrigger value="assurances">Assurances</TabsTrigger>
-          <TabsTrigger value="delais">Délais</TabsTrigger>
-          <TabsTrigger value="execution">Exécution / OS</TabsTrigger>
-          <TabsTrigger value="liquidation">Liquidation</TabsTrigger>
-          <TabsTrigger value="os_avenant">OS Avenant</TabsTrigger>
-          <TabsTrigger value="reception">Réception</TabsTrigger>
+          {canRead('correspondances') && <TabsTrigger value="correspondances">Correspondances</TabsTrigger>}
+          {canRead('engagement') && <TabsTrigger value="engagement">Engagement</TabsTrigger>}
+          {canRead('avenant') && <TabsTrigger value="avenant">Avenant</TabsTrigger>}
+          {canRead('garanties') && <TabsTrigger value="garanties">Garanties</TabsTrigger>}
+          {canRead('assurances') && <TabsTrigger value="assurances">Assurances</TabsTrigger>}
+          {canRead('delais') && <TabsTrigger value="delais">Délais</TabsTrigger>}
+          {canRead('execution') && <TabsTrigger value="execution">Exécution / OS</TabsTrigger>}
+          {canRead('liquidation') && <TabsTrigger value="liquidation">Liquidation</TabsTrigger>}
+          {canRead('ordres_service_avenant') && <TabsTrigger value="os_avenant">OS Avenant</TabsTrigger>}
+          {canRead('reception') && <TabsTrigger value="reception">Réception</TabsTrigger>}
         </TabsList>
 
         {/* CORRESPONDANCES */}
