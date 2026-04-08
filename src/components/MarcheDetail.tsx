@@ -519,7 +519,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Phase d'Exécution — Ordres de Service</CardTitle>
-              {canWrite('execution') && <Button size="sm" className="gap-1" onClick={addOS}><Plus className="h-3 w-3" /> Ajouter OS</Button>}
+              {canWrite('execution') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'execution').unlocked} onClick={addOS}><Plus className="h-3 w-3" /> Ajouter OS {!getStepStatus(marche, 'execution').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
@@ -555,7 +555,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Phase de Liquidation et Mandatement</CardTitle>
-              {canWrite('liquidation') && <Button size="sm" className="gap-1" onClick={addOperation}><Plus className="h-3 w-3" /> Ajouter</Button>}
+              {canWrite('liquidation') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'liquidation').unlocked} onClick={addOperation}><Plus className="h-3 w-3" /> Ajouter {!getStepStatus(marche, 'liquidation').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
@@ -592,7 +592,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Ordres de Service — Avenant</CardTitle>
-              {canWrite('ordres_service_avenant') && <Button size="sm" className="gap-1" onClick={addOSAvenant}><Plus className="h-3 w-3" /> Ajouter</Button>}
+              {canWrite('ordres_service_avenant') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'os_avenant').unlocked} onClick={addOSAvenant}><Plus className="h-3 w-3" /> Ajouter {!getStepStatus(marche, 'os_avenant').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
@@ -628,7 +628,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
           <Card className="card-shadow">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Réception</CardTitle>
-              {canWrite('reception') && <Button size="sm" className="gap-1" onClick={addReception}><Plus className="h-3 w-3" /> Ajouter</Button>}
+              {canWrite('reception') && <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'reception').unlocked} onClick={addReception}><Plus className="h-3 w-3" /> Ajouter {!getStepStatus(marche, 'reception').unlocked && <Lock className="h-3 w-3" />}</Button>}
             </CardHeader>
             <CardContent>
               <Table>
