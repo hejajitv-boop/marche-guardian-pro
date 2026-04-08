@@ -297,7 +297,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Phase d'Engagement — Marché Initial</CardTitle>
               <div className="flex gap-2">
                 {canWrite('engagement') && !marche.engagement && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ engagement: { formeEngagement: '', dateSaisie: '', dateEnvoi: '', montantMarcheInitial: 0, savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0 } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'engagement').unlocked} onClick={() => save({ engagement: { formeEngagement: '', dateSaisie: '', dateEnvoi: '', montantMarcheInitial: 0, savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0 } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'engagement').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('engagement') && marche.engagement && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ engagement: marche.engagement }); toast.success('Engagement enregistré'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -345,7 +345,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Avenant / Augmentation d'Engagement</CardTitle>
               <div className="flex gap-2">
                 {canWrite('avenant') && !marche.avenant && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ avenant: { dateSaisie: '', montantAvenant: 0, dateEnvoi: '', savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0, dateAugmentation: '', montantAugmentation: 0 } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'avenant').unlocked} onClick={() => save({ avenant: { dateSaisie: '', montantAvenant: 0, dateEnvoi: '', savIM: 0, dateVisa: '', savRP: 0, numeroVisa: '', montantTotalEngage: 0, dateAugmentation: '', montantAugmentation: 0 } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'avenant').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('avenant') && marche.avenant && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ avenant: marche.avenant }); toast.success('Avenant enregistré'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -394,7 +394,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Garanties</CardTitle>
               <div className="flex gap-2">
                 {canWrite('garanties') && !marche.garanties && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ garanties: { cautionnement: '', cautionnementMontant: 0, cautionnementDate: '', cautionBancaireCautionnement: '', retenueGarantie: '', retenueGarantieMontant: 0, retenueGarantieDate: '', cautionBancaireRetenue: '' } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'garanties').unlocked} onClick={() => save({ garanties: { cautionnement: '', cautionnementMontant: 0, cautionnementDate: '', cautionBancaireCautionnement: '', retenueGarantie: '', retenueGarantieMontant: 0, retenueGarantieDate: '', cautionBancaireRetenue: '' } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'garanties').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('garanties') && marche.garanties && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ garanties: marche.garanties }); toast.success('Garanties enregistrées'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -441,7 +441,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Assurances</CardTitle>
               <div className="flex gap-2">
                 {canWrite('assurances') && !marche.assurances && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ assurances: { responsabiliteCivile: '', trc: '', dommagesOuvrage: '', accidentTravail: '' } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'assurances').unlocked} onClick={() => save({ assurances: { responsabiliteCivile: '', trc: '', dommagesOuvrage: '', accidentTravail: '' } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'assurances').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('assurances') && marche.assurances && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ assurances: marche.assurances }); toast.success('Assurances enregistrées'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
@@ -480,7 +480,7 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
               <CardTitle className="text-base">Délais</CardTitle>
               <div className="flex gap-2">
                 {canWrite('delais') && !marche.delais && (
-                  <Button size="sm" className="gap-1" onClick={() => save({ delais: { delaiExecution: '', delaiGarantie: '' } })}><Plus className="h-3 w-3" /> Initialiser</Button>
+                  <Button size="sm" className="gap-1" disabled={!getStepStatus(marche, 'delais').unlocked} onClick={() => save({ delais: { delaiExecution: '', delaiGarantie: '' } })}><Plus className="h-3 w-3" /> Initialiser {!getStepStatus(marche, 'delais').unlocked && <Lock className="h-3 w-3" />}</Button>
                 )}
                 {canWrite('delais') && marche.delais && (
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { save({ delais: marche.delais }); toast.success('Délais enregistrés'); }}><Save className="h-3 w-3" /> Enregistrer</Button>
