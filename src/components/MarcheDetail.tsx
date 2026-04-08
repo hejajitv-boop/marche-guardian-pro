@@ -29,10 +29,15 @@ interface MarcheDetailProps {
 
 export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
   const { getMarche, updateMarche, addTemoin, addNotification } = useData();
-  const { user, allUsers } = useAuth();
+  const { user, allUsers, hasPermission } = useAuth();
   const marche = getMarche(marcheId);
   const [activeTab, setActiveTab] = useState('correspondances');
   const [showSendDoc, setShowSendDoc] = useState(false);
+
+  // Permission helpers
+  const canRead = (proc: import('@/types').ProcedureType) => hasPermission(proc, 'read');
+  const canWrite = (proc: import('@/types').ProcedureType) => hasPermission(proc, 'write');
+  const canDelete = (proc: import('@/types').ProcedureType) => hasPermission(proc, 'delete');
   const [sendTo, setSendTo] = useState('');
   const [sendMessage, setSendMessage] = useState('');
 
