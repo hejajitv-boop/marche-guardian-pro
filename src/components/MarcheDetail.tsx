@@ -189,19 +189,69 @@ export default function MarcheDetail({ marcheId, onBack }: MarcheDetailProps) {
         </Dialog>
       </div>
 
+      {/* Workflow Progress Bar */}
+      <Card className="card-shadow">
+        <CardContent className="pt-4 pb-3">
+          <div className="flex items-center gap-1 overflow-x-auto pb-1">
+            {WORKFLOW_STEPS.map((step, idx) => {
+              const status = getStepStatus(marche, step.key);
+              return (
+                <TooltipProvider key={step.key}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1">
+                        <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                          status.complete ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                          status.unlocked ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                          'bg-muted text-muted-foreground opacity-60'
+                        }`}>
+                          {status.complete ? <CheckCircle2 className="h-3 w-3" /> :
+                           !status.unlocked ? <Lock className="h-3 w-3" /> :
+                           <AlertCircle className="h-3 w-3" />}
+                          <span className="whitespace-nowrap">{step.label}</span>
+                        </div>
+                        {idx < WORKFLOW_STEPS.length - 1 && <span className="text-muted-foreground mx-0.5">→</span>}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {status.complete ? `${step.label} — Complété ✓` :
+                       status.unlocked ? `${step.label} — En attente de saisie` :
+                       `🔒 Prérequis manquant(s) : ${status.missingPrereqs.join(', ')}`}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex flex-wrap h-auto gap-1">
-          {canRead('correspondances') && <TabsTrigger value="correspondances">Correspondances</TabsTrigger>}
-          {canRead('engagement') && <TabsTrigger value="engagement">Engagement</TabsTrigger>}
-          {canRead('avenant') && <TabsTrigger value="avenant">Avenant</TabsTrigger>}
-          {canRead('garanties') && <TabsTrigger value="garanties">Garanties</TabsTrigger>}
-          {canRead('assurances') && <TabsTrigger value="assurances">Assurances</TabsTrigger>}
-          {canRead('delais') && <TabsTrigger value="delais">Délais</TabsTrigger>}
-          {canRead('execution') && <TabsTrigger value="execution">Exécution / OS</TabsTrigger>}
-          {canRead('liquidation') && <TabsTrigger value="liquidation">Liquidation</TabsTrigger>}
-          {canRead('ordres_service_avenant') && <TabsTrigger value="os_avenant">OS Avenant</TabsTrigger>}
-          {canRead('reception') && <TabsTrigger value="reception">Réception</TabsTrigger>}
+          {WORKFLOW_STEPS.map(step => {
+            const procKey = step.key === 'os_avenant' ? 'ordres_service_avenant' : step.key as import('@/types').ProcedureType;
+            const status = getStepStatus(marche, step.key);
+            if (!canRead(procKey)) return null;
+            return (
+              <TooltipProvider key={step.key}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <TabsTrigger value={step.key} disabled={!status.unlocked} className="gap-1">
+                        {!status.unlocked && <Lock className="h-3 w-3" />}
+                        {status.complete && <CheckCircle2 className="h-3 w-3 text-green-600" />}
+                        {step.label}
+                      </TabsTrigger>
+                    </span>
+                  </TooltipTrigger>
+                  {!status.unlocked && (
+                    <TooltipContent>Prérequis : {status.missingPrereqs.join(', ')}</TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
         </TabsList>
 
         {/* CORRESPONDANCES */}
